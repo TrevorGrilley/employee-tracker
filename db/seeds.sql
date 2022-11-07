@@ -17,3 +17,14 @@ VALUES
 
 ('HR Manager', 180000, 4),
 ('HR Assistant', 130000, 4);
+
+INSERT into employee (id, first_name, last_name, role_id, manager_id)
+VALUES
+("Keith", "Urban", 1, NULL),
+("Blake", "Shelton", 2, 1),
+("Troy", "Mclovin", 3, NULL), 
+("Eric", "Spence", 4, 3),
+("Michael", "Scott",5, NULL),
+("Ryan", "Newman", 6, 5),
+("Steve", "Jobs", 7, NULL),
+("Bill", "Gates",8, 7);
