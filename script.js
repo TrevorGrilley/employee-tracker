@@ -184,7 +184,7 @@ const addEmployee = () => {
         let roleSelection = res.map(role => ({
             name: role.title, value: role.id
         }));
-        
+
         //Questions
         inquirer.prompt([{
             type: 'input',
@@ -220,5 +220,84 @@ const addEmployee = () => {
                 }
             )
         })
+    });
+};
+
+// create ability to update employees
+const updateEmployee = () => {
+    db.query(
+        'SELECT CONCAT(employee.first_name, " ",employee.last_name) AS full_name, employee.id as empl_id, role.* FROM employee RIGHT JOIN role on employee.role_id = role.id',
+        function (err, res) {
+            if (err) throw err;
+
+            let employeeSelection = res.map(employee => ({
+                full_name: employee.full_name,
+                id:employee.empl_id,
+                value:[employee.full_name, employee.empl_id]
+            }))
+            let roleSelection = res.map (role => ({
+                title: role.title,
+                id: role.id,
+                value:[role.title,role.id]
+            }));
+            console.log(employeeSelection)
+            inquirer.prompt([{
+                type:'list',
+                name:'employee',
+                choices:employeeSelection,
+                message:'Please select which employee you would like to edit'
+            },
+            {
+            type:'list',
+            name:'newRole',
+            choices:roleSelection,
+            message:'Please select which role you would like to assign'
+        }
+        ])
+            .then((answer) => {
+                let editID = answer.employee[1];
+                let newRoleId = answer.newRole[1];
+                db.query(`UPDATE employee SET role_id=${newRoleId} WHERE id=${editID};`,
+                (err, res) => {
+                    if(err) {
+                        throw err
+                    }
+                    console.table(res)
+                    moreActions();
+                })
+            })
+    })
+};
+
+// create ability to delete employees
+const deleteEmployee = () => {
+    connection.query('SELECT CONCAT(first_name, " ", last_name) as full_name, id FROM employee', function (err, res) {
+        if (err) throw err;
+
+        let employeeSelection = res.map(employee => ({
+            full_name: employee.full_name,
+            id: employee.id,
+            value: [employee.full_name, employee.id]
+        }));
+        inquirer.prompt([{
+            type: 'list',
+            name: 'employee',
+            choices: employeeSelection,
+            message: 'Please select which employee you would like to remove'
+        }
+        ])
+            .then((answer) => {
+                deleteID = answer.employee[1];
+                connection.query(`DELETE FROM employee WHERE id = ${deleteID};`,
+                    function (err, res) {
+                        if (err) {
+                            throw err
+                        }
+                        console.table(res);
+                        moreActions();
+                    })
+
+            }
+            );
     });
 };
