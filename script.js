@@ -129,7 +129,49 @@ const addDept = () => {
     })
 };
 
+//add roles
+const addRole = () => {
+    connection.query('SELECT * FROM department', function (err, res) {
+        if (err) throw err;
 
-
-
+        let deptChoice = res.map(department => ({
+            name: department.name, value: department.id
+        }));
+        //ask question
+        inquirer.prompt([{
+            type: 'input',
+            name: 'title',
+            message: 'Please enter a role you would like to add'
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'Please enter a salary for the role you added'
+        },
+        {
+            type: 'list',
+            name: 'department',
+            choices: deptChoice,
+            message: 'Please enter a department you would like to add the role to'
+        }
+        ]).then((answer) => {
+            console.log(answer.title)
+            connection.query(
+                'INSERT INTO roles SET ?',
+                {
+                    title: answer.title,
+                    salary: answer.salary,
+                    department_id: answer.department
+                },
+                function (err, res) {
+                    if (err) {
+                        throw err
+                    }
+                    console.table(res);
+                    moreActions();
+                }
+            )
+        })
+    })
+};
 
