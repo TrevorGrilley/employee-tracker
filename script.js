@@ -10,6 +10,8 @@ const db = mysql.createConnection({
     database: 'employees_db'
 });
 
+const db = require('./db/connection');
+
 connection.connect(function (err) {
     if (err) throw err;
     menu();
@@ -66,4 +68,68 @@ const promptUser = () => {
             }
         })
 };
+
+const contActions = () => {
+    inquirer.prompt([{
+        type: 'confirm',
+        message: 'Would you like to make any further selections?',
+        name: 'contActions',
+        default: false
+    }]).then(({contActions}) => {
+        if (contActions) {
+            return promptUser()
+        } db.end()
+    })
+};
+
+// Option to further view departments
+const showDepts = () => {
+    const query = db.query('SELECT role.title, role.salary, department.department_name as department_name FROM role LEFT JOIN department on role.department_id = department.id;', (err, res) => {
+        if (err) {throw err;}
+        console.log('\n');
+        console.table(res);
+        console.log('----------')
+
+        contActions();
+    });
+};
+
+//Employees
+const showEmployees = () => {
+    const query = db.query('SELECT employee.first_name, employee.last_name, role.title as job_title, role.salary, department.department_name as deparment, employee.manager_id FROM employee LEFT JOIN role on employee.role_id = role.id INNER JOIN department on role.department_id = department.id', (err, res) => {
+        if (err) {
+            throw err;
+        } console.table(res)
+        console.log('----------')
+        contActions();
+    });
+};
+
+// add a department
+const addDept = () => {
+    return inquirer.prompt([{
+        type: 'input',
+        name: 'department_name',
+        message: 'Please select a department you would like to add'
+    },
+    ])
+    .then((answer) => {
+        console.log(answer.department_name);
+        db.query(
+            `add into existing departments`,
+            {department_name: answer.department_name},
+            (err, res) => {
+                if (err) {
+                    throw err
+                }
+                console.table(res);
+                contActions();
+            }
+        )
+    })
+};
+
+
+
+
 
