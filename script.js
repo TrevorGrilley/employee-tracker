@@ -168,10 +168,57 @@ const addRole = () => {
                         throw err
                     }
                     console.table(res);
-                    moreActions();
+                    contActions();
                 }
             )
         })
     })
 };
 
+
+// add employees
+const addEmployee = () => {
+    db.query('SELECT * FROM role', function (err, res) {
+        if (err) throw err;
+
+        let roleSelection = res.map(role => ({
+            name: role.title, value: role.id
+        }));
+        
+        //Questions
+        inquirer.prompt([{
+            type: 'input',
+            name: 'firstName',
+            message: 'Please enter the employees first name'
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message: 'Please enter the employees last name'
+        },
+        {
+            type: 'list',
+            name: 'role',
+            choices: roleSelection,
+            message: 'Please enter the employees title'
+        }
+        ])
+        .then((answer) => {
+            db.query(
+                'INSERT INTO employee SET ?',
+                {
+                    first_name: answer.first_name,
+                    last_name: answer.last_name,
+                    role_id: answer.role
+                },
+                (err, res) => {
+                    if (err) {
+                        throw err
+                    }
+                    console.table(res);
+                    contActions();
+                }
+            )
+        })
+    });
+};
